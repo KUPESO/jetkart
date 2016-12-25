@@ -6,15 +6,32 @@ class App:
 
     def __init__(self, master):
         self.s1 = StringVar()
+        self.stateStr = StringVar()
+        self.otStr = StringVar()
+        self.opStr = StringVar()
+        self.egtStr = StringVar()
+        self.rpmStr = StringVar()
+        self.thrStr = StringVar()
 
-        self.label = Label(master, textvariable=self.s1)
+        self.label = Label(master, textvariable=self.stateStr)
         self.label.place(x=10,y=10)
+	
+        self.label = Label(master, textvariable=self.otStr)
+        self.label.place(x=10,y=20)
 
         self.update = Button(master, text="Update", command=self.update)
         self.update.place(x=10,y=50)
 
+    def updateLabels(self, state, ot, op, egt, rpm, thr):
+        self.stateStr.set(state)
+        self.otStr.set(ot)
+        self.opStr.set(op)
+        self.egtStr.set(egt)
+        self.rpmStr.set(rpm)
+        self.thrStr.set(thr)
+
     def update(self): #, state, ot, op, egt, rpm, thr ):
-        self.s1.set("Updated")
+        updateLabels("state", "ot", "op", "egt", "rpm", "thr")
 
 def UI():
     master = Tk() #creates instace of tk window
