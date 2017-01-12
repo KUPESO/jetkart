@@ -174,7 +174,7 @@ void loop()
   preheattimer = millis();
   
 //---------------------------------------------------------------------------------------------------------
-  while // HEATING
+  while // HEATING - this loop runs when a start requested. It runs for at least 30s, and until oil and combustor are hot.
     ((oilokay == HIGH) 
     && (requeststart == HIGH) 
     && (wantstart == LOW)  

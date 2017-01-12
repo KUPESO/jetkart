@@ -10,10 +10,9 @@ Gas Turbine Full Authority Digital Engine Controller
 -----------------------------------------------------------------
 Oil Pressure Regulation - ATMEGA328p
 -----------------------------------------------------------------
-©2016
+©2016-2017
 Austin Feathers
 Jordan Sprick
-Zach Brachtenbach
 Preston Rabe
 Laurissa Marcotte
 -----------------------------------------------------------------
