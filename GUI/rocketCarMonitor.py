@@ -1,10 +1,13 @@
 from tkinter import *
 import serial
 import threading #used to make sure the UI and serial are independent
+import datetime
 
 class App:
 
     def __init__(self, master, ser):
+        self.log = logging()
+
         self.ser = ser
 
         self.stateStr = StringVar()
@@ -46,12 +49,15 @@ class App:
         self.rpmStr.set('RPM: ' + rpm)
         self.thrStr.set('Thrust: ' + thr)
 
+        self.log.append( state + ',' +  ot + ',' + op + ',' + egt + ',' + rpm + ',' + thr)
+
     def update(self): #, state, ot, op, egt, rpm, thr ):
         self.updateLabels('state', 'ot', 'op', 'egt', 'rpm', 'thr')
 
     def start(self):
         print('START')
         self.ser.write(b'start')
+        self.log.newLog()
 
     def stop(self):
         print('STOP')
@@ -78,6 +84,19 @@ class App:
                     rpmStr.decode('utf-8'), thrStr.decode('utf-8') )
         else:
             return
+
+class logging():
+    def __init__(self):
+        self.file = open('logs/uninitialized.csv', 'w+')
+
+    def newLog(self):
+        filename = 'logs/' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.csv'
+        self.file = open(filename, 'w+')
+        self.file.write('state, ot, op, egt, rpm, thr\n')
+    
+    def append(self, s):
+        s = s.replace('\r\n', '')
+        self.file.write(s + '\n')
 
 def UI():
     master = Tk() #creates instace of tk window
