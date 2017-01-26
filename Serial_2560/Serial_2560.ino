@@ -80,6 +80,7 @@ unsigned long lastrequesttime = 0; // start request polling counter
 
 const int throttlereadtime = 50; // throttle read interval
 unsigned long lastthrottlereadtime = 0; // throttle read counter 
+int throttlediff = 0; // Instantaneous difference between throttle input and fuel speed
 
 int idle = 90; // Default idle setting
 const int idlesettime = 1000; // idle adjust interval - should be high, on the order of seconds, for stable idle
@@ -513,7 +514,7 @@ void oilread()
     }
     lastoilreadtime = millis();
   }
-    if(oilokay == HIGH)
+    if(oilokay == HIGH) // Set green LED according to "oil pressure okay/not okay"
   {
     digitalWrite(FADECgreen_pin, HIGH);
   }
@@ -525,18 +526,44 @@ void oilread()
 
 void throttleread()
 {
-  if(millis()-lastthrottlereadtime >= throttlereadtime)
+  if(millis()-lastthrottlereadtime >= throttlereadtime)   //If it is time to read the throttle (50ms interval - THIS INTERVAL AFFECTS THROTTLE SLEW RATE LIMIT)
     {
-      throttlesetting = (analogRead(throttlein_pin)/4);
-      if(throttlesetting < 15)
+      throttlesetting = (analogRead(throttlein_pin)/4);   //Compute and rescale 10-bit throttle in to 8-bit value
+      throttlediff = throttlesetting - fuelspeed;    //Calculate difference between desired throttle setting and current fuel setting
+      
+      if(throttlesetting < 15)    //Prevent jitter-related bugs by defining thresholds for "high" and "low" potentiometer settings
         {
           fuelspeed = 0;
         }
-      else
+      else if(throttlesetting > 245)
         {
-          fuelspeed = throttlesetting;
+          fuelspeed = 255;
         }
-        lastthrottlereadtime = millis();
+        
+      else if(throttlediff > 0)   //If throttle setting is higher than fuel setting
+        {
+          if(abs(throttlediff) < 20)    //and the difference is less than 20
+            {
+              fuelspeed += ((abs(throttlediff))/3);   //Increment fuel pump speed proportionally (max rate of 6 units/function call)
+            }
+          else
+            {
+              fuelspeed += 7;    //Otherwise obey throttle-up slew rate limit (> 1.5sec from idle to full throttle) 
+            }
+        }
+        
+      else if(throttlediff < 0)   //If throttle setting is lower than fuel setting
+        {
+          if(abs(throttlediff) < 20)    //and the difference is less than 20
+            {
+              fuelspeed -= ((abs(throttlediff))/5);   //Decrement fuel pump speed proportionally (max rate of 4 units/function call)
+            }
+          else
+            {
+              fuelspeed -= 3;   //Otherwise obey throttle-down slew rate limit (> 4sec from full throttle to idle)
+            }
+        }
+      lastthrottlereadtime = millis();    //Reset throttleread function counter
     }
 }
 
