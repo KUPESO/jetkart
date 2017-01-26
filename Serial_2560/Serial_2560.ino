@@ -236,6 +236,7 @@ void loop()
         wantstart =  HIGH;
         wantrun = LOW;
         starttimer = millis();
+        idle = 90;    //Re-initialize idle value in case previous run idleset function set it too low (hot vs cold oil)
       }
     request();
   }
