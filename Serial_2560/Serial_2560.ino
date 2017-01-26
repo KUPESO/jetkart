@@ -92,6 +92,7 @@ unsigned long cooltimer = 0; // variable for timing cooldown cycle
 
 byte oilpsi = 0;
 long RPM = 0;
+int throttlesetting;
 int fuelspeed = 0;
 int startspeed = 0;
 int startswLED_val = 0;
@@ -253,22 +254,22 @@ void loop()
       telemetry();
       state = 2;
 
-    if(millis()-starttimer < 5000)
+    if(millis()-starttimer < 3000)
       {
-        STARTER.write(55);
-        analogWrite(fuelpwmout_pin, 55);
+        STARTER.write(45);
+        analogWrite(fuelpwmout_pin, 60);
       }
-    else if (millis()-starttimer >= 5000 && millis()-starttimer < 15000 && RPM < 15000)
+    else if (millis()-starttimer >= 3000 && millis()-starttimer < 15000 && RPM < 15000)
       {
         digitalWrite(FADECorange_pin, HIGH);
-        STARTER.write(35);
+        STARTER.write(30);
         analogWrite(fuelpwmout_pin, 75);
       }
     else if (millis()-starttimer < 15000 && RPM >= 15000 && RPM < 22000)
       {
         digitalWrite(FADECorange_pin, LOW);
         STARTER.write(25);
-        analogWrite(fuelpwmout_pin, 90);
+        analogWrite(fuelpwmout_pin, 85);
       }
     else if (millis()-starttimer < 20000 && RPM >= 22000 && RPM < 30000)  
       {
@@ -330,7 +331,7 @@ void loop()
       telemetry();
       state = 3;  
 
-     if(millis()-runtimer < 300000)
+     if(millis()-runtimer < 600000)
         {
           if(fuelspeed < 20)
             {
@@ -354,7 +355,7 @@ void loop()
         STARTER.write(84);
         }
         
-      if((temperatureegt > 1500) || (temperatureegt < 600))            // Overtemp/undertemp - Return to idle or cooldown
+      if((temperatureegt > 1500) || (temperatureegt < 600))            // Overtemp/undertemp - Return to passive or cooldown
         {
           wantstart = LOW;
           requeststart = LOW;
@@ -434,18 +435,19 @@ void idleset() //this function maintains idle speed at ~30,000 RPM. This accommo
 {
   if(((millis() - lastidlesettime) >= idlesettime) && (fuelspeed < 20)) //adjust idle speed only when in idle state and at the specified interval
   {
-    if((idle >= 105) || (idle <= 75))  //if idle setting unreasonably high or low, step it back to default
+    if((idle >= 105) || (idle <= 65))  //if idle setting unreasonably high or low, step it back to default
     {
       idle = 90;
     }
-    if(RPM < 30000)  //if idle is low, increment idle
+    else if(RPM < 30000)  //if idle is low, increment idle
     {
       idle++;
     }
-    else if(RPM > 30500)   //if idle is high, decrement idle
+    else if(RPM >= 30000)   //if idle is high, decrement idle
     { 
       idle--;
     }
+    lastidlesettime = millis();
   }
 }
 
@@ -525,14 +527,16 @@ void throttleread()
 {
   if(millis()-lastthrottlereadtime >= throttlereadtime)
     {
-      if(analogRead(throttlein_pin)< 15)
+      throttlesetting = (analogRead(throttlein_pin)/4);
+      if(throttlesetting < 15)
         {
           fuelspeed = 0;
         }
       else
         {
-          fuelspeed = (analogRead(throttlein_pin))/4;
+          fuelspeed = throttlesetting;
         }
+        lastthrottlereadtime = millis();
     }
 }
 
@@ -557,7 +561,7 @@ void telemetry()
       switch(state)
       {
         case 0:
-          Serial.println("IDLE");
+          Serial.println("PASS");
           break;
         case 1:
           Serial.println("HEAT");
@@ -572,17 +576,12 @@ void telemetry()
           Serial.println("COOL");
           break;
       }
-      Serial.print("OT ");
       Serial.println(temperatureoil);
-      Serial.print("OP ");
       Serial.println((int)oilpsi);
-      Serial.print("EGT ");
       Serial.println(temperatureegt);
-      Serial.print("RPM ");
       Serial.println(RPM);
-      Serial.print("THR ");
       Serial.println(fuelspeed);
-      Serial.println();
+      Serial.println("#");
       Serial1.write((byte)RPM);
       digitalWrite(FADECwhite_pin, LOW);
       lasttelemetrytime = millis();  
