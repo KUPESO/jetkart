@@ -38,17 +38,20 @@
 #define genrlyctl_2_pin 22
 #define throttlein_pin 0
 
-Servo STARTER;
+Servo STARTER;    //name servo
 
+//initialize max6675 thermocouple A
 #define AthermoDO 40
 #define AthermoCS 39
 #define AthermoCLK 38
 MAX6675 Athermocouple(AthermoCLK, AthermoCS, AthermoDO);
 
+//initialize max6675 thermocouple B
 #define BthermoDO 43
 #define BthermoCS 42
 #define BthermoCLK 41
 MAX6675 Bthermocouple(BthermoCLK, BthermoCS, BthermoDO);
+
 
 boolean oilokay = LOW;
 boolean requeststart = LOW;
@@ -57,8 +60,8 @@ boolean wantrun = LOW;
 boolean oiltemp = LOW;
 boolean estop = LOW;
 boolean hot = LOW;
-
 boolean ignstate = LOW;
+
 const int ignhigh = 5; // duration of ignition dwell
 const int ignlow = 250; // ignition low period
 unsigned long lastigntime = 0; // ignition counter
@@ -91,9 +94,9 @@ unsigned long starttimer = 0; // variable for timing start sequence
 unsigned long runtimer = 0; // variable for timing events while running
 unsigned long cooltimer = 0; // variable for timing cooldown cycle
 
-byte oilpsi = 0;
-long RPM = 0;
-int throttlesetting;
+byte oilpsi = 0; //1 PSI precision to max of 100 PSI
+long RPM = 0; //max ~80,000 RPM, precision = whatever necessary, currently 312 RPM per step
+int throttlesetting = 0; //
 int fuelspeed = 0;
 int startspeed = 0;
 int startswLED_val = 0;
@@ -106,6 +109,7 @@ boolean FADECgreenLED_val = LOW;
 boolean NOchill = LOW;
 //TESTING ONLY
 
+//temperature initialization - unconsequential as of current version
 int temperatureoil = 0;
 int temperatureegt = 0;
 int ambienttempoil = 0;
