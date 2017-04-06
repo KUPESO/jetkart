@@ -38,17 +38,20 @@
 #define genrlyctl_2_pin 22
 #define throttlein_pin 0
 
-Servo STARTER;
+Servo STARTER;    //name servo
 
+//initialize max6675 thermocouple A
 #define AthermoDO 40
 #define AthermoCS 39
 #define AthermoCLK 38
 MAX6675 Athermocouple(AthermoCLK, AthermoCS, AthermoDO);
 
+//initialize max6675 thermocouple B
 #define BthermoDO 43
 #define BthermoCS 42
 #define BthermoCLK 41
 MAX6675 Bthermocouple(BthermoCLK, BthermoCS, BthermoDO);
+
 
 boolean oilokay = LOW;
 boolean requeststart = LOW;
@@ -57,8 +60,8 @@ boolean wantrun = LOW;
 boolean oiltemp = LOW;
 boolean estop = LOW;
 boolean hot = LOW;
-
 boolean ignstate = LOW;
+
 const int ignhigh = 5; // duration of ignition dwell
 const int ignlow = 250; // ignition low period
 unsigned long lastigntime = 0; // ignition counter
@@ -80,6 +83,7 @@ unsigned long lastrequesttime = 0; // start request polling counter
 
 const int throttlereadtime = 50; // throttle read interval
 unsigned long lastthrottlereadtime = 0; // throttle read counter 
+int throttlediff = 0; // Instantaneous difference between throttle input and fuel speed
 
 int idle = 90; // Default idle setting
 const int idlesettime = 1000; // idle adjust interval - should be high, on the order of seconds, for stable idle
@@ -90,8 +94,9 @@ unsigned long starttimer = 0; // variable for timing start sequence
 unsigned long runtimer = 0; // variable for timing events while running
 unsigned long cooltimer = 0; // variable for timing cooldown cycle
 
-byte oilpsi = 0;
-long RPM = 0;
+byte oilpsi = 0; //1 PSI precision to max of 100 PSI
+long RPM = 0; //max ~80,000 RPM, precision = whatever necessary, currently 312 RPM per step
+int throttlesetting = 0; //
 int fuelspeed = 0;
 int startspeed = 0;
 int startswLED_val = 0;
@@ -104,6 +109,7 @@ boolean FADECgreenLED_val = LOW;
 boolean NOchill = LOW;
 //TESTING ONLY
 
+//temperature initialization - unconsequential as of current version
 int temperatureoil = 0;
 int temperatureegt = 0;
 int ambienttempoil = 0;
@@ -234,6 +240,7 @@ void loop()
         wantstart =  HIGH;
         wantrun = LOW;
         starttimer = millis();
+        idle = 90;    //Re-initialize idle value in case previous run idleset function set it too low (hot vs cold oil)
       }
     request();
   }
@@ -253,22 +260,22 @@ void loop()
       telemetry();
       state = 2;
 
-    if(millis()-starttimer < 5000)
+    if(millis()-starttimer < 3000)
       {
-        STARTER.write(55);
-        analogWrite(fuelpwmout_pin, 55);
+        STARTER.write(45);
+        analogWrite(fuelpwmout_pin, 60);
       }
-    else if (millis()-starttimer >= 5000 && millis()-starttimer < 15000 && RPM < 15000)
+    else if (millis()-starttimer >= 3000 && millis()-starttimer < 15000 && RPM < 15000)
       {
         digitalWrite(FADECorange_pin, HIGH);
-        STARTER.write(35);
+        STARTER.write(30);
         analogWrite(fuelpwmout_pin, 75);
       }
     else if (millis()-starttimer < 15000 && RPM >= 15000 && RPM < 22000)
       {
         digitalWrite(FADECorange_pin, LOW);
         STARTER.write(25);
-        analogWrite(fuelpwmout_pin, 90);
+        analogWrite(fuelpwmout_pin, 85);
       }
     else if (millis()-starttimer < 20000 && RPM >= 22000 && RPM < 30000)  
       {
@@ -330,7 +337,7 @@ void loop()
       telemetry();
       state = 3;  
 
-     if(millis()-runtimer < 300000)
+     if(millis()-runtimer < 600000)
         {
           if(fuelspeed < 20)
             {
@@ -354,7 +361,7 @@ void loop()
         STARTER.write(84);
         }
         
-      if((temperatureegt > 1500) || (temperatureegt < 600))            // Overtemp/undertemp - Return to idle or cooldown
+      if((temperatureegt > 1500) || (temperatureegt < 600))            // Overtemp/undertemp - Return to passive or cooldown
         {
           wantstart = LOW;
           requeststart = LOW;
@@ -434,18 +441,19 @@ void idleset() //this function maintains idle speed at ~30,000 RPM. This accommo
 {
   if(((millis() - lastidlesettime) >= idlesettime) && (fuelspeed < 20)) //adjust idle speed only when in idle state and at the specified interval
   {
-    if((idle >= 105) || (idle <= 75))  //if idle setting unreasonably high or low, step it back to default
+    if((idle >= 105) || (idle <= 65))  //if idle setting unreasonably high or low, step it back to default
     {
       idle = 90;
     }
-    if(RPM < 30000)  //if idle is low, increment idle
+    else if(RPM < 30000)  //if idle is low, increment idle
     {
       idle++;
     }
-    else if(RPM > 30500)   //if idle is high, decrement idle
+    else if(RPM >= 30000)   //if idle is high, decrement idle
     { 
       idle--;
     }
+    lastidlesettime = millis();
   }
 }
 
@@ -511,7 +519,7 @@ void oilread()
     }
     lastoilreadtime = millis();
   }
-    if(oilokay == HIGH)
+    if(oilokay == HIGH) // Set green LED according to "oil pressure okay/not okay"
   {
     digitalWrite(FADECgreen_pin, HIGH);
   }
@@ -523,16 +531,44 @@ void oilread()
 
 void throttleread()
 {
-  if(millis()-lastthrottlereadtime >= throttlereadtime)
+  if(millis()-lastthrottlereadtime >= throttlereadtime)   //If it is time to read the throttle (50ms interval - THIS INTERVAL AFFECTS THROTTLE SLEW RATE LIMIT)
     {
-      if(analogRead(throttlein_pin)< 15)
+      throttlesetting = (analogRead(throttlein_pin)/4);   //Compute and rescale 10-bit throttle in to 8-bit value
+      throttlediff = throttlesetting - fuelspeed;    //Calculate difference between desired throttle setting and current fuel setting
+      
+      if(throttlesetting < 15)    //Prevent jitter-related bugs by defining thresholds for "high" and "low" potentiometer settings
         {
           fuelspeed = 0;
         }
-      else
+      else if(throttlesetting > 245)
         {
-          fuelspeed = (analogRead(throttlein_pin))/4;
+          fuelspeed = 255;
         }
+        
+      else if(throttlediff > 0)   //If throttle setting is higher than fuel setting
+        {
+          if(abs(throttlediff) < 20)    //and the difference is less than 20
+            {
+              fuelspeed += ((abs(throttlediff))/3);   //Increment fuel pump speed proportionally (max rate of 6 units/function call)
+            }
+          else
+            {
+              fuelspeed += 7;    //Otherwise obey throttle-up slew rate limit (> 1.5sec from idle to full throttle) 
+            }
+        }
+        
+      else if(throttlediff < 0)   //If throttle setting is lower than fuel setting
+        {
+          if(abs(throttlediff) < 20)    //and the difference is less than 20
+            {
+              fuelspeed -= ((abs(throttlediff))/5);   //Decrement fuel pump speed proportionally (max rate of 4 units/function call)
+            }
+          else
+            {
+              fuelspeed -= 3;   //Otherwise obey throttle-down slew rate limit (> 4sec from full throttle to idle)
+            }
+        }
+      lastthrottlereadtime = millis();    //Reset throttleread function counter
     }
 }
 
@@ -557,7 +593,7 @@ void telemetry()
       switch(state)
       {
         case 0:
-          Serial.println("IDLE");
+          Serial.println("PASS");
           break;
         case 1:
           Serial.println("HEAT");
@@ -572,17 +608,12 @@ void telemetry()
           Serial.println("COOL");
           break;
       }
-      Serial.print("OT ");
       Serial.println(temperatureoil);
-      Serial.print("OP ");
       Serial.println((int)oilpsi);
-      Serial.print("EGT ");
       Serial.println(temperatureegt);
-      Serial.print("RPM ");
       Serial.println(RPM);
-      Serial.print("THR ");
       Serial.println(fuelspeed);
-      Serial.println();
+      Serial.println("#");
       Serial1.write((byte)RPM);
       digitalWrite(FADECwhite_pin, LOW);
       lasttelemetrytime = millis();  
