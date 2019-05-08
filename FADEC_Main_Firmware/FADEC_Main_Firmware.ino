@@ -22,34 +22,34 @@
 #include <max6675.h>
 #include <Servo.h>
 
-#define estopsig_pin 
-#define fuelpwmout_pin 
-#define FADECwhite_pin 
-#define FADECorange_pin 
-#define FADECgreen_pin 
-#define escsigout_pin 
-#define startswled_pin 
-#define startswsig_pin 
-#define oilokay_pin 
-#define ignctl_pin 
-#define startfuelsol_pin 
-#define startengsol_pin 
-#define genrlyctl_1_pin 
-#define genrlyctl_2_pin 
-#define throttlein_pin 
+#define estopsig_pin 2
+#define fuelpwmout_pin 6
+#define FADECwhite_pin 7
+#define FADECorange_pin 8
+#define FADECgreen_pin 9
+#define escsigout_pin 12
+#define startswled_pin 13
+#define startswsig_pin 37
+#define oilokay_pin 36
+#define ignctl_pin 26
+#define startfuelsol_pin 25
+#define startengsol_pin 24
+#define genrlyctl_1_pin 23
+#define genrlyctl_2_pin 22
+#define throttlein_pin 0
 
 Servo STARTER;    //name servo
 
 //initialize max6675 thermocouple A
-#define AthermoDO 
-#define AthermoCS 
-#define AthermoCLK 
+#define AthermoDO 40
+#define AthermoCS 39
+#define AthermoCLK 38
 MAX6675 Athermocouple(AthermoCLK, AthermoCS, AthermoDO);
 
 //initialize max6675 thermocouple B
-#define BthermoDO 
-#define BthermoCS 
-#define BthermoCLK 
+#define BthermoDO 43
+#define BthermoCS 42
+#define BthermoCLK 41
 MAX6675 Bthermocouple(BthermoCLK, BthermoCS, BthermoDO);
 
 
