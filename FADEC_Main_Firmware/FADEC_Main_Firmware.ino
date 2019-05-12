@@ -323,7 +323,8 @@ void loop()
       && (wantstart == LOW)  
       && (wantrun == HIGH) 
       && (estop == HIGH)
-      && (RPM > 25000))
+      && (RPM > 25000)
+      && (RPM < 70000))
       {
       estop = digitalRead(estopsig_pin);
       oilokay = digitalRead(oilokay_pin);
@@ -375,6 +376,10 @@ void loop()
       request();
       }
 //---------------------------------------------------------------------------------------------------------
+    cooltimer = millis();                   //Set cooltimer before entering cooldown to prevent instantaneous starter motor engagement
+    fuelspeed = 0;
+    throttlediff = 0;
+    throttlesetting = 0;                    //Set throttle back to 0 upon entering cooldown to prevent a non-zero throttle from being applied on next start
     while // COOLDOWN
       ((oilokay == HIGH) && (requeststart == LOW) && (wantstart == LOW)  && (wantrun == LOW) && (estop == HIGH) && (hot == HIGH) && (NOchill == LOW))
       {
@@ -441,7 +446,7 @@ void idleset() //this function maintains idle speed at ~30,000 RPM. This accommo
 {
   if(((millis() - lastidlesettime) >= idlesettime) && (fuelspeed < 20)) //adjust idle speed only when in idle state and at the specified interval
   {
-    if((idle >= 105) || (idle <= 65))  //if idle setting unreasonably high or low, step it back to default
+    if((idle >= 95) || (idle <= 55))  //if idle setting unreasonably high or low, step it back to default
     {
       idle = 90;
     }
@@ -619,4 +624,3 @@ void telemetry()
       lasttelemetrytime = millis();  
   }
 }
-
