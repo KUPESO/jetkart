@@ -1,4 +1,4 @@
-/*
+                                                                                     /*
  ____  _____ ____   ___  
  |  _ \| ____/ ___| / _ \ 
  | |_) |  _| \___ \| | | |
@@ -10,7 +10,7 @@
  -----------------------------------------------------------------
  Main Controller - ATMEGA2560
  -----------------------------------------------------------------
- ©2016-2017
+ ©2016-2019
  Austin Feathers
  Jordan Sprick
  Preston Rabe
@@ -143,7 +143,7 @@ void setup()
   Serial1.begin(9600);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED\n");
+  Serial.print("CONNECTED v1.1\n");
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
