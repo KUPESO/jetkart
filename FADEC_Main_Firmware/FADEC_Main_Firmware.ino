@@ -143,7 +143,7 @@ void setup()
   Serial1.begin(9600);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED v1.1\n");
+  Serial.print("CONNECTED v1.2\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -536,9 +536,23 @@ void oilread()
 
 void throttleread()
 {
+  int analogval = 0;
   if(millis()-lastthrottlereadtime >= throttlereadtime)   //If it is time to read the throttle (50ms interval - THIS INTERVAL AFFECTS THROTTLE SLEW RATE LIMIT)
     {
-      throttlesetting = (analogRead(throttlein_pin)/4);   //Compute and rescale 10-bit throttle in to 8-bit value
+      analogval = analogRead(throttlein_pin);             //read potentiometer value
+      if(analogval < 185)                             //minimum trigger pull reads 0.9V (185), if below 185 set to minimum value
+        {
+          throttlesetting = 0;
+        }
+      else if(analogval > 870)                        //maximum trigger pull reads 4.26V (870), if above 870 set to maximum value
+      {
+        throttlesetting = 255;
+      }
+      else
+      {
+        throttlesetting = map(analogval,185,870,0,255);               //otherwise map 185-870 to 0-255 range
+      }
+      
       throttlediff = throttlesetting - fuelspeed;    //Calculate difference between desired throttle setting and current fuel setting
       
       if(throttlesetting < 15)    //Prevent jitter-related bugs by defining thresholds for "high" and "low" potentiometer settings
