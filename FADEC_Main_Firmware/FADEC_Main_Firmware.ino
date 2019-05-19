@@ -143,7 +143,7 @@ void setup()
   Serial1.begin(9600);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED v1.2\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.21\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -317,6 +317,7 @@ void loop()
     request();
     }
 //---------------------------------------------------------------------------------------------------------
+    fuelspeed = 0;
     while // RUNNING
       ((oilokay == HIGH) 
       && (requeststart == LOW) 
@@ -540,7 +541,7 @@ void throttleread()
   if(millis()-lastthrottlereadtime >= throttlereadtime)   //If it is time to read the throttle (50ms interval - THIS INTERVAL AFFECTS THROTTLE SLEW RATE LIMIT)
     {
       analogval = analogRead(throttlein_pin);             //read potentiometer value
-      if(analogval < 185)                             //minimum trigger pull reads 0.9V (185), if below 185 set to minimum value
+      if(analogval < 495)                             //minimum trigger pull reads 0.9V (185), if below 185 set to minimum value
         {
           throttlesetting = 0;
         }
@@ -550,21 +551,21 @@ void throttleread()
       }
       else
       {
-        throttlesetting = map(analogval,185,870,0,255);               //otherwise map 185-870 to 0-255 range
+        throttlesetting = map(analogval,495,870,0,255);               //otherwise map 185-870 to 0-255 range
       }
-      
-      throttlediff = throttlesetting - fuelspeed;    //Calculate difference between desired throttle setting and current fuel setting
-      
+
       if(throttlesetting < 15)    //Prevent jitter-related bugs by defining thresholds for "high" and "low" potentiometer settings
         {
-          fuelspeed = 0;
+          throttlesetting = 0;
         }
       else if(throttlesetting > 245)
         {
-          fuelspeed = 255;
+          throttlesetting = 255;
         }
-        
-      else if(throttlediff > 0)   //If throttle setting is higher than fuel setting
+      
+      throttlediff = throttlesetting - fuelspeed;    //Calculate difference between desired throttle setting and current fuel setting
+              
+      if(throttlediff > 0)   //If throttle setting is higher than fuel setting
         {
           if(abs(throttlediff) < 20)    //and the difference is less than 20
             {
