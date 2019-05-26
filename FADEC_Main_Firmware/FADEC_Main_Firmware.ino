@@ -78,7 +78,7 @@ unsigned long lasttachreadtime = 0; // tachometer sample counter
 const int telemetrytime = 250; // telemetry transmission interval
 unsigned long lasttelemetrytime = 0; // telemetry transmission counter
 
-const int steeringtime = 200; //steering wheel data transmission interval
+const int steeringtime = 100; //steering wheel data transmission interval
 unsigned long laststeeringtime = 0; //time of last steering wheel data transmission
 
 const int requesttime = 250; // start request polling interval
@@ -323,7 +323,7 @@ void loop()
     request();
     }
 //---------------------------------------------------------------------------------------------------------
-    fuelspeed = 0;
+    //fuelspeed = 0;
     while // RUNNING
       ((oilokay == HIGH) 
       && (requeststart == LOW) 
@@ -385,9 +385,9 @@ void loop()
       }
 //---------------------------------------------------------------------------------------------------------
     cooltimer = millis();                   //Set cooltimer before entering cooldown to prevent instantaneous starter motor engagement
-    fuelspeed = 0;
+    //fuelspeed = 0;
     throttlediff = 0;
-    throttlesetting = 0;                    //Set throttle back to 0 upon entering cooldown to prevent a non-zero throttle from being applied on next start
+    //throttlesetting = 0;                    //Set throttle back to 0 upon entering cooldown to prevent a non-zero throttle from being applied on next start
     while // COOLDOWN
       ((oilokay == HIGH) && (requeststart == LOW) && (wantstart == LOW)  && (wantrun == LOW) && (estop == HIGH) && (hot == HIGH) && (NOchill == LOW))
       {
@@ -651,7 +651,8 @@ void steeringwheel()
 {
   if(millis() - laststeeringtime >= steeringtime)
   {
-    Serial1.write((int)temperatureoil);
+    Serial1.write(throttlesetting);
+    laststeeringtime = millis();
   }
-  laststeeringtime = millis();
+  
 }
