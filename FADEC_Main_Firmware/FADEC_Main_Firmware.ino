@@ -78,6 +78,9 @@ unsigned long lasttachreadtime = 0; // tachometer sample counter
 const int telemetrytime = 250; // telemetry transmission interval
 unsigned long lasttelemetrytime = 0; // telemetry transmission counter
 
+const int steeringtime = 200; //steering wheel data transmission interval
+unsigned long laststeeringtime = 0; //time of last steering wheel data transmission
+
 const int requesttime = 250; // start request polling interval
 unsigned long lastrequesttime = 0; // start request polling counter
 
@@ -143,7 +146,7 @@ void setup()
   Serial1.begin(9600);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.21\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.3\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -175,6 +178,7 @@ void loop()
   temp();
   telemetry();
   throttleread();
+  steeringwheel();
   
   state = 0;
   preheattimer = millis();
@@ -194,6 +198,7 @@ void loop()
     tachread();
     temp();
     telemetry();
+    steeringwheel();
     state = 1;
     analogWrite(fuelpwmout_pin, 0);
 
@@ -258,6 +263,7 @@ void loop()
       tachread();
       temp();
       telemetry();
+      steeringwheel();
       state = 2;
 
     if(millis()-starttimer < 3000)
@@ -337,6 +343,7 @@ void loop()
       tachread();
       temp();
       telemetry();
+      steeringwheel();
       state = 3;  
 
      if(millis()-runtimer < 600000)
@@ -391,6 +398,7 @@ void loop()
       tachread();
       temp();
       telemetry();
+      steeringwheel();
       analogWrite(fuelpwmout_pin, 0);
       digitalWrite(startfuelsol_pin, LOW);
       state = 4;
@@ -634,8 +642,16 @@ void telemetry()
       Serial.println(RPM);
       Serial.println(fuelspeed);
       Serial.println("#");
-      Serial1.write((byte)RPM);
       digitalWrite(FADECwhite_pin, LOW);
       lasttelemetrytime = millis();  
   }
+}
+
+void steeringwheel()
+{
+  if(millis() - laststeeringtime >= steeringtime)
+  {
+    Serial1.write((int)temperatureoil);
+  }
+  laststeeringtime = millis();
 }

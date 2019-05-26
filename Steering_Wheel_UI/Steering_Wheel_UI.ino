@@ -17,13 +17,34 @@
  -----------------------------------------------------------------
  
  */
+#include <Adafruit_NeoPixel.h>
+
+byte throttleval = 0;
+
+#define LED_PIN     22
+#define LED_COUNT   11
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(11, 22, NEO_GRB + NEO_KHZ800);
 
 void setup() {
-  // put your setup code here, to run once:
-
+  Serial.begin(9600);    //FADEC
+  delay(8000);
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  int n = 1;
+  if(Serial.available() > 0)
+       {
+          //throttleval = Serial.read();
+          strip.setPixelColor(0, 0, 255, 0);
+          strip.show();
+          delay(500);
+       }
+  else
+  {
+     strip.setPixelColor(0, 0, 0, 255);
+     strip.show();
+  }
+  n=1;
 }
