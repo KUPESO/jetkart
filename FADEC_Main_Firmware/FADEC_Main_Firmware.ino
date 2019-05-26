@@ -146,7 +146,7 @@ void setup()
   Serial1.begin(9600);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.3\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.32\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -180,9 +180,7 @@ void loop()
   throttleread();
   steeringwheel();
   
-  state = 0;
-  preheattimer = millis();
-  
+  state = 0;  
 //---------------------------------------------------------------------------------------------------------
   while // HEATING - this loop runs when a start requested. It runs for at least 30s, and until oil and combustor are hot.
     ((oilokay == HIGH) 
@@ -191,6 +189,10 @@ void loop()
     && (wantrun == LOW)  
     && (estop == HIGH))
   {
+    if(state != 1)
+      {
+        preheattimer = millis();  //happens only on the first run of the loop
+      }
     estop = digitalRead(estopsig_pin);
     oilokay = digitalRead(oilokay_pin);
     digitalWrite(startengsol_pin, HIGH);
@@ -257,6 +259,10 @@ void loop()
     && (wantrun == LOW) 
     && (estop == HIGH))
     {
+      if(state != 2)
+      {
+        //happens only on the first run of the loop
+      }
       estop = digitalRead(estopsig_pin);
       oilokay = digitalRead(oilokay_pin);
       oilread();
@@ -323,7 +329,6 @@ void loop()
     request();
     }
 //---------------------------------------------------------------------------------------------------------
-    //fuelspeed = 0;
     while // RUNNING
       ((oilokay == HIGH) 
       && (requeststart == LOW) 
@@ -333,6 +338,10 @@ void loop()
       && (RPM > 25000)
       && (RPM < 70000))
       {
+      if(state != 3)
+      {
+        fuelspeed = 0; //happens only on the first run of the loop
+      }
       estop = digitalRead(estopsig_pin);
       oilokay = digitalRead(oilokay_pin);
       digitalWrite(startengsol_pin, LOW);
@@ -384,13 +393,16 @@ void loop()
       request();
       }
 //---------------------------------------------------------------------------------------------------------
-    cooltimer = millis();                   //Set cooltimer before entering cooldown to prevent instantaneous starter motor engagement
-    //fuelspeed = 0;
-    throttlediff = 0;
-    //throttlesetting = 0;                    //Set throttle back to 0 upon entering cooldown to prevent a non-zero throttle from being applied on next start
     while // COOLDOWN
       ((oilokay == HIGH) && (requeststart == LOW) && (wantstart == LOW)  && (wantrun == LOW) && (estop == HIGH) && (hot == HIGH) && (NOchill == LOW))
       {
+      if(state != 4)
+      {
+        cooltimer = millis();                   //Set cooltimer before entering cooldown to prevent instantaneous starter motor engagement
+        fuelspeed = 0;
+        throttlediff = 0;
+        throttlesetting = 0;                    //Set throttle back to 0 upon entering cooldown to prevent a non-zero throttle from being applied on next start//happens only on the first run of the loop
+      }
       estop = digitalRead(estopsig_pin);
       oilokay = digitalRead(oilokay_pin);
       request();
