@@ -143,10 +143,10 @@ void setup()
   
   Serial3.begin(9600);
   Serial2.begin(9600);
-  Serial1.begin(9600);
+  Serial1.begin(115200);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.32\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.4\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -658,12 +658,25 @@ void telemetry()
       lasttelemetrytime = millis();  
   }
 }
-
+char outstr[50];
 void steeringwheel()
 {
-  if(millis() - laststeeringtime >= steeringtime)
+  if((millis() - laststeeringtime) >= 200)//steeringtime)
   {
-    Serial1.write(throttlesetting);
+    snprintf(outstr, 50, "%d %3d %2d %4d %5ld %3d %3d\n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed);
+    /*Serial1.print(temperatureoil);
+    Serial1.print(",");
+    Serial1.print(oilpsi);
+    Serial1.print(",");
+    Serial1.print(temperatureegt);
+    Serial1.print(",");
+    Serial1.print(RPM);
+    Serial1.print(",");
+    Serial1.print(throttlesetting);
+    Serial1.print(",");
+    Serial1.print(fuelspeed);
+    Serial1.println("");*/
+    Serial1.print(outstr);
     laststeeringtime = millis();
   }
   
