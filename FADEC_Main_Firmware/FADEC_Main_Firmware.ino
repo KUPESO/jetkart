@@ -103,6 +103,7 @@ int throttlesetting = 0; //
 int fuelspeed = 0;
 int startspeed = 0;
 int startswLED_val = 0;
+byte slewrate = 0;
 
 boolean FADECwhiteLED_val = LOW;
 boolean FADECorangeLED_val = LOW;
@@ -146,7 +147,7 @@ void setup()
   Serial1.begin(115200);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.4\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.5\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -587,26 +588,41 @@ void throttleread()
               
       if(throttlediff > 0)   //If throttle setting is higher than fuel setting
         {
-          if(abs(throttlediff) < 20)    //and the difference is less than 20
+          if(RPM - 30000 > 0)
+          {
+            slewrate = (168 + ((RPM - 30000)/403)) / (1000/throttlereadtime);    //calculate slewrate value by dividing RPM - 30000 by 403 and then adding to the base slew value of 168. All that then gets divided by the number of times per second the function is called at
+            if(throttlediff < slewrate)
             {
-              fuelspeed += ((abs(throttlediff))/3);   //Increment fuel pump speed proportionally (max rate of 6 units/function call)
+              fuelspeed += abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
             }
+            else
+            {
+              fuelspeed += abs(slewrate);                                    //if throttlediff is greater than the max slewrate, slew by the max slewrate
+            }
+          }
           else
-            {
-              fuelspeed += 7;    //Otherwise obey throttle-up slew rate limit (> 1.5sec from idle to full throttle) 
-            }
+          {
+            fuelspeed += (168 / (1000/throttlereadtime));                   //if RPM is below 30k, obey default slew speed
+          }
         }
-        
       else if(throttlediff < 0)   //If throttle setting is lower than fuel setting
         {
-          if(abs(throttlediff) < 20)    //and the difference is less than 20
+          if(RPM - 30000 > 0)
+          {
+            slewrate = (63.75 + ((RPM - 30000) / 915)) / (1000/throttlereadtime);      //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 63.75. All that then gets divided by the number of times per second the function is called at
+            if(throttlediff < slewrate)
             {
-              fuelspeed -= ((abs(throttlediff))/5);   //Decrement fuel pump speed proportionally (max rate of 4 units/function call)
+              fuelspeed -= abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
             }
+            else
+            {
+              fuelspeed -= abs(slewrate);                                    //if throttlediff is greater than the max slewrate, slew by the max slewrate
+            }
+          }
           else
-            {
-              fuelspeed -= 3;   //Otherwise obey throttle-down slew rate limit (> 4sec from full throttle to idle)
-            }
+          {
+            fuelspeed -= (63.75 / (1000/throttlereadtime));                  //if RPM is below 30k, obey default slew speed
+          }
         }
       lastthrottlereadtime = millis();    //Reset throttleread function counter
     }
