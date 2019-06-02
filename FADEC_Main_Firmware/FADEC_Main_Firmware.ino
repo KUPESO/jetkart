@@ -37,6 +37,7 @@
 #define genrlyctl_1_pin 23
 #define genrlyctl_2_pin 22
 #define throttlein_pin 0
+#define throttlereadrate throttlereadtime/1000     //rate at which throttle is read at, used for slew rate function
 
 Servo STARTER;    //name servo
 
@@ -147,7 +148,7 @@ void setup()
   Serial1.begin(115200);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.5\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.51\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -590,7 +591,7 @@ void throttleread()
         {
           if(RPM - 30000 > 0)
           {
-            slewrate = (168 + ((RPM - 30000)/403)) / (1000/throttlereadtime);    //calculate slewrate value by dividing RPM - 30000 by 403 and then adding to the base slew value of 168. All that then gets divided by the number of times per second the function is called at
+            slewrate = (168 + ((RPM - 30000)/403)) / throttlereadrate;    //calculate slewrate value by dividing RPM - 30000 by 403 and then adding to the base slew value of 168. All that then gets divided by the number of times per second the function is called at
             if(throttlediff < slewrate)
             {
               fuelspeed += abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
@@ -609,7 +610,7 @@ void throttleread()
         {
           if(RPM - 30000 > 0)
           {
-            slewrate = (63.75 + ((RPM - 30000) / 915)) / (1000/throttlereadtime);      //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 63.75. All that then gets divided by the number of times per second the function is called at
+            slewrate = (63.75 + ((RPM - 30000) / 915)) / throttlereadrate;      //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 63.75. All that then gets divided by the number of times per second the function is called at
             if(throttlediff < slewrate)
             {
               fuelspeed -= abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
