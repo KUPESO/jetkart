@@ -694,7 +694,7 @@ void steeringwheel()
 {
   if((millis() - laststeeringtime) >= 200)//steeringtime)
   {
-    snprintf(outstr, 50, "%d %03d %02d %04d %05ld %03d %03d\n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed);
+    snprintf(outstr, 50, "%d %03d %02d %04d %05ld %03d %03d \n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed);
     /*Serial1.print(temperatureoil);
     Serial1.print(",");
     Serial1.print(oilpsi);
