@@ -148,7 +148,7 @@ void setup()
   Serial1.begin(115200);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.53\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.6\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -591,7 +591,7 @@ void throttleread()
         {
           if(RPM > 30000)
           {
-            slewrate = ((168 + ((RPM - 30000)/403)) / throttlereadrate);     //calculate slewrate value by dividing RPM - 30000 by 403 and then adding to the base slew value of 168. All that then gets divided by the number of times per second the function is called at (throttlereadrate)
+            slewrate = ((180 + ((RPM - 30000)/333)) / throttlereadrate);   //168->180 //403->333  //calculate slewrate value by dividing RPM - 30000 by 403 and then adding to the base slew value of 168. All that then gets divided by the number of times per second the function is called at (throttlereadrate)
             if(throttlediff < slewrate)
             {
               fuelspeed += abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
@@ -603,13 +603,13 @@ void throttleread()
           }
           else                                                               //if RPM is below 30k, obey default slew speed 
           {
-            if(throttlediff < (8))                                           //if difference is less than the base slew rate (168 / throttlereadrate)
+            if(throttlediff < (9))                                           //if difference is less than the base slew rate (168 / throttlereadrate)
             {
               fuelspeed += abs(throttlediff);                                //then slew by the difference
             }
             else
             {
-              fuelspeed += (8);                                              //else slew by base slew rate (168 / throttlereadrate)
+              fuelspeed += (9);                                              //else slew by base slew rate (168 / throttlereadrate)
             }
           }
         }
@@ -617,7 +617,7 @@ void throttleread()
         {
           if(RPM > 30000)
           {
-            slewrate = ((64 + ((RPM - 30000)/915)) / throttlereadrate);      //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 64. All that then gets divided by the number of times per second the function is called at (throttlereadrate)
+            slewrate = ((60 + ((RPM - 30000)/282)) / throttlereadrate);  //915->348 //348->282   //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 64. All that then gets divided by the number of times per second the function is called at (throttlereadrate)
             if(abs(throttlediff) < slewrate)
             {
               fuelspeed -= abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
