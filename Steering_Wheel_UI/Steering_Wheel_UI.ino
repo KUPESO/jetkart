@@ -23,8 +23,8 @@
 #include <Adafruit_SSD1325.h>
 
 #define LED_PIN     22
-#define LED_COUNT   11
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(11, 22, NEO_GRB + NEO_KHZ800);
+#define LED_COUNT   12
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(12, 22, NEO_GRB + NEO_KHZ800);
 
 // If using software SPI, define CLK and MOSI
 #define OLED_CLK 13
@@ -170,6 +170,62 @@ void draw_state( uint8_t state )
  
 }
 
+void updateLED( long RPM )
+{
+  //set all leds to 0
+  strip.clear();;
+  
+  if(RPM > 10000)
+  {
+    strip.setPixelColor(0, 0, 0, 255);
+  }
+  if(RPM > 15000)
+  {
+    strip.setPixelColor(1, 0, 0, 255);
+  }
+  if(RPM > 20000)
+  {
+    strip.setPixelColor(2, 0, 0, 255);
+  }
+  if(RPM > 25000)
+  {
+    strip.setPixelColor(3, 0, 0, 255);
+  }
+  if(RPM > 30000)
+  {
+    strip.setPixelColor(4, 0, 255, 0);
+  }
+  if(RPM > 35000)
+  {
+    strip.setPixelColor(5, 0, 255, 0);
+  }
+  if(RPM > 40000)
+  {
+    strip.setPixelColor(6, 0, 255, 0);
+  }
+  if(RPM > 45000)
+  {
+    strip.setPixelColor(7, 0, 255, 0);
+  }
+  if(RPM > 50000)
+  {
+    strip.setPixelColor(8, 0, 255, 0);
+  }
+  if(RPM > 55000)
+  {
+    strip.setPixelColor(9, 0, 255, 0);
+  }
+  if(RPM > 60000)
+  {
+    strip.setPixelColor(10, 255, 0, 0);
+  }
+  if(RPM > 65000)
+  {
+    strip.setPixelColor(11, 255, 0, 0);
+  }
+  strip.show();
+}
+
 String instr;
 int bytes_avail = 0;
 
@@ -195,6 +251,7 @@ int16_t throttle;
 uint8_t throttle_bug;
 uint8_t throttle_width;
 int16_t fuel_pwm;
+long RPM;
 
 char *ptr;
 
@@ -213,7 +270,17 @@ void setup()   {
   display.display();
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
-  
+  int i = 0;
+  RPM = 1;
+  for (i = 0; i < 15; i++ )
+  {
+    RPM += 5000;
+    updateLED(RPM);
+    delay(50);
+  }
+  delay(1500);
+  RPM = 0;
+  updateLED(RPM);
   // init done
 }
 
@@ -331,6 +398,8 @@ void loop() {
     */
     
     display.display();
+    RPM = strtol(rpm_str,&ptr, 10 );
+    updateLED(RPM);
     
   }
 }

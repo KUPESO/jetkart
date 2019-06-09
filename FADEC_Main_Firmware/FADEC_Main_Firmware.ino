@@ -148,7 +148,7 @@ void setup()
   Serial1.begin(115200);
   Serial.begin(9600);
   delay(500);
-  Serial.print("CONNECTED 1.6\n");     //current version, update when you make changes
+  Serial.print("CONNECTED 1.61\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -617,7 +617,7 @@ void throttleread()
         {
           if(RPM > 30000)
           {
-            slewrate = ((60 + ((RPM - 30000)/282)) / throttlereadrate);  //915->348 //348->282   //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 64. All that then gets divided by the number of times per second the function is called at (throttlereadrate)
+            slewrate = ((80 + ((RPM - 30000)/282)) / throttlereadrate);  //915->348 //348->282   //calculate slewrate value by dividing RPM - 30000 by 915 and then adding to the base slew value of 80. All that then gets divided by the number of times per second the function is called at (throttlereadrate)
             if(abs(throttlediff) < slewrate)
             {
               fuelspeed -= abs(throttlediff);                                //if throttlediff is below the max slewrate for that RPM, set fuelspeed to throttlesetting
@@ -629,13 +629,13 @@ void throttleread()
           }
           else                                                               //if RPM is below 30k, obey default slew speed 
           {
-            if(abs(throttlediff) < (3))                                      //if difference is less than the base slew rate (64 / throttlereadrate)
+            if(abs(throttlediff) < (4))                                      //if difference is less than the base slew rate (80 / throttlereadrate)
             {
               fuelspeed -= abs(throttlediff);                                //slew by difference
             }
             else
             {
-              fuelspeed -= (3);                                              //else slew by base slew rate (64 / throttlereadrate)
+              fuelspeed -= (4);                                              //else slew by base slew rate (80 / throttlereadrate)
             }
           }
         }
