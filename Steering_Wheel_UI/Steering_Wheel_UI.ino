@@ -178,50 +178,55 @@ void updateLED( long RPM )
   if(RPM > 10000)
   {
     strip.setPixelColor(0, 0, 0, 255);
-  }
-  if(RPM > 15000)
-  {
-    strip.setPixelColor(1, 0, 0, 255);
+    strip.setPixelColor(1, 0, 0, 
   }
   if(RPM > 20000)
   {
-    strip.setPixelColor(2, 0, 0, 255);
-  }
-  if(RPM > 25000)
-  {
-    strip.setPixelColor(3, 0, 0, 255);
+    strip.setPixelColor(1, 0, 0, 255);
   }
   if(RPM > 30000)
   {
-    strip.setPixelColor(4, 0, 255, 0);
+    strip.setPixelColor(2, 0, 255, 0);
   }
   if(RPM > 35000)
   {
-    strip.setPixelColor(5, 0, 255, 0);
+    strip.setPixelColor(3, 0, 255, 0);
   }
   if(RPM > 40000)
   {
-    strip.setPixelColor(6, 0, 255, 0);
+    strip.setPixelColor(4, 0, 255, 0);
   }
   if(RPM > 45000)
   {
-    strip.setPixelColor(7, 0, 255, 0);
+    strip.setPixelColor(5, 0, 255, 0);
   }
   if(RPM > 50000)
   {
-    strip.setPixelColor(8, 0, 255, 0);
+    strip.setPixelColor(6, 0, 255, 0);
   }
   if(RPM > 55000)
   {
-    strip.setPixelColor(9, 0, 255, 0);
+    strip.setPixelColor(7, 0, 255, 0);
   }
   if(RPM > 60000)
   {
+    strip.setPixelColor(8, 0, 255, 0);
+  }
+  if(RPM > 61000)
+  {
+    strip.setPixelColor(9, 255, 0, 0);
+  }
+  if(RPM > 62000)
+  {
     strip.setPixelColor(10, 255, 0, 0);
   }
-  if(RPM > 65000)
+  if(RPM > 63000)
   {
     strip.setPixelColor(11, 255, 0, 0);
+  }
+  if(RPM > 63960)
+  {
+    
   }
   strip.show();
 }

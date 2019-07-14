@@ -147,8 +147,8 @@ void setup()
   Serial2.begin(9600);
   Serial1.begin(115200);
   Serial.begin(9600);
-  delay(500);
-  Serial.print("CONNECTED 1.61\n");     //current version, update when you make changes
+  delay(1000);
+  Serial.print("CONNECTED 1.7\n");     //current version, update when you make changes
   
   ambienttempoil = int(Athermocouple.readFarenheit());
   ambienttempegt = int(Bthermocouple.readFarenheit());
@@ -394,6 +394,47 @@ void loop()
         }
       request();
       }
+      if( 3 == state )//if we just exited the run state print why we exited
+    {
+      if(!(oilokay == HIGH))
+        {
+          Serial.print("Exit: oilokay LOW oilpsi:");
+          Serial.print(oilpsi);
+        }
+      else if(!(requeststart == LOW))
+        {
+          Serial.print("Exit: requeststart HIGH");
+        }
+      else if(!(wantstart == LOW))
+        {
+          Serial.print("Exit: wantstart HIGH");
+        }
+      else if(!(wantrun == HIGH))
+        {
+          Serial.print("Exit: wantrun LOW");
+        }
+      else if(!(estop == HIGH))
+        {
+          Serial.print("Exit: estop LOW");
+        }
+      else if(!(RPM > 25000))
+        {
+          Serial.print("Exit: RPM: ");
+          Serial.print(RPM);
+          Serial.print(" <= 25000");
+        }
+      else if(!(RPM < 70000))
+        {
+          Serial.print("Exit: RPM: ");
+          Serial.print(RPM);
+          Serial.print(" >= 70000");
+        }
+      else
+        {
+          Serial.print("Exit: UNKNOWN! Check code for new exit conditions!");
+        }
+      Serial.println();
+    }
 //---------------------------------------------------------------------------------------------------------
     while // COOLDOWN
       ((oilokay == HIGH) && (requeststart == LOW) && (wantstart == LOW)  && (wantrun == LOW) && (estop == HIGH) && (hot == HIGH) && (NOchill == LOW))
@@ -469,9 +510,9 @@ void idleset() //this function maintains idle speed at ~30,000 RPM. This accommo
 {
   if(((millis() - lastidlesettime) >= idlesettime) && (fuelspeed < 20)) //adjust idle speed only when in idle state and at the specified interval
   {
-    if((idle >= 95) || (idle <= 55))  //if idle setting unreasonably high or low, step it back to default
+    if((idle >= 90) || (idle <= 50))  //if idle setting unreasonably high or low, step it back to default
     {
-      idle = 90;
+      idle = 75;
     }
     else if(RPM < 30000)  //if idle is low, increment idle
     {
