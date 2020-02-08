@@ -257,6 +257,7 @@ uint8_t throttle_bug;
 uint8_t throttle_width;
 int16_t fuel_pwm;
 long RPM;
+int buttonPin = A10;
 
 char *ptr;
 
@@ -286,6 +287,7 @@ void setup()   {
   delay(1500);
   RPM = 0;
   updateLED(RPM);
+  pinmode(buttonPin, INPUT);
   // init done
 }
 
@@ -293,6 +295,12 @@ void loop() {
   display.setTextSize(1);
   display.setTextColor(WHITE,BLACK);
   bytes_avail = Serial.available();
+
+  buttonState = digitalRead(buttonPin);
+  if(buttonState == HIGH)
+  {
+    write...
+  }
   
   if(bytes_avail > 0) 
   {

@@ -510,9 +510,9 @@ void idleset() //this function maintains idle speed at ~30,000 RPM. This accommo
 {
   if(((millis() - lastidlesettime) >= idlesettime) && (fuelspeed < 20)) //adjust idle speed only when in idle state and at the specified interval
   {
-    if((idle >= 90) || (idle <= 50))  //if idle setting unreasonably high or low, step it back to default
+    if((idle >= 95) || (idle <= 55))  //if idle setting unreasonably high or low, step it back to default
     {
-      idle = 75;
+      idle = 80;
     }
     else if(RPM < 30000)  //if idle is low, increment idle
     {
