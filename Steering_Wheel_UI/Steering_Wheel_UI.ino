@@ -178,7 +178,7 @@ void updateLED( long RPM )
   if(RPM > 10000)
   {
     strip.setPixelColor(0, 0, 0, 255);
-    strip.setPixelColor(1, 0, 0, 
+    strip.setPixelColor(1, 0, 0, 255); 
   }
   if(RPM > 20000)
   {
@@ -247,6 +247,7 @@ char *egttemp_str;
 char *rpm_str;
 char *throttle_set_str;
 char *fuelspeed_str;
+char *gndspeed_str;
 int16_t oil_temp;
 uint8_t oil_temp_bug;
 int16_t egt_temp;
@@ -321,6 +322,7 @@ void loop() {
     rpm_str = strtok(0, " ");
     throttle_set_str = strtok(0, " ");
     fuelspeed_str = strtok(0, " \n");
+    gndspeed_str = strtok(0, " \n");
 
     display.setCursor(1,56);
     snprintf(bottom_string, 50, "%s %s %s %s",throttle_set_str,fuelspeed_str,rpm_str,oilpsi_str);

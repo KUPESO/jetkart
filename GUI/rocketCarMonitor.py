@@ -16,6 +16,7 @@ class App:
         self.egtStr = StringVar()
         self.rpmStr = StringVar()
         self.thrStr = StringVar()
+        self.gndspeed = StringVar()
 
         self.label = Label(master, textvariable=self.stateStr)
         self.label.place(x=10,y=10)
@@ -35,24 +36,28 @@ class App:
         self.label = Label(master, textvariable=self.thrStr)
         self.label.place(x=10,y=110)
 
+        self.label = Label(master, textvariable=self.gndspeed)
+        self.label.place(x=10,y=110)
+
         self.start = Button(master, text='START', width='10', height='5', bg='green', command=self.start)
         self.start.place(x=0,y=130)
 
         self.stop = Button(master, text='STOP', width='10', height='5', bg='red', command=self.stop)
         self.stop.place(x=140,y=130)
 
-    def updateLabels(self, state, ot, op, egt, rpm, thr):
+    def updateLabels(self, state, ot, op, egt, rpm, thr, gndspeed):
         self.stateStr.set('State: ' + state)
         self.otStr.set('Oil Temperature: ' + ot)
         self.opStr.set('Oil Pressure: ' + op)
         self.egtStr.set('Exhaust Gas Temperature: ' + egt)
         self.rpmStr.set('RPM: ' + rpm)
         self.thrStr.set('Thrust: ' + thr)
+        self.gndspeed.set('Ground Speed: ' + gndspeed)
 
-        self.log.append( state + ',' +  ot + ',' + op + ',' + egt + ',' + rpm + ',' + thr)
+        self.log.append( state + ',' +  ot + ',' + op + ',' + egt + ',' + rpm + ',' + thr + ',' + gndspeed)
 
-    def update(self): #, state, ot, op, egt, rpm, thr ):
-        self.updateLabels('state', 'ot', 'op', 'egt', 'rpm', 'thr')
+    def update(self): #, state, ot, op, egt, rpm, thr, gndspeed):
+        self.updateLabels('state', 'ot', 'op', 'egt', 'rpm', 'thr', 'gndspeed')
 
     def start(self):
         print('START')
@@ -73,15 +78,16 @@ class App:
             egtStr = self.ser.readline()
             rpmStr = self.ser.readline()
             thrStr = self.ser.readline()
+            gndspeed = self.ser.readline()
 
-            print(stateStr + otStr + opStr + egtStr + rpmStr + thrStr)
+            print(stateStr + otStr + opStr + egtStr + rpmStr + thrStr + gndspeed)
 
-            if False: # otStr == b'' | opStr == b'' | egtStr == b'' | rpmStr == b'' | thrStr == b'' | otStr == b'#' | opStr == b'#' | egtStr == b'#' | rpmStr == b'#' | thrStr == b'#':
+            if False: # otStr == b'' | opStr == b'' | egtStr == b'' | rpmStr == b'' | thrStr == b'' | otStr == b'#' | opStr == b'#' | egtStr == b'#' | rpmStr == b'#' | thrStr == b'#' | gndspeed == b'#':
                 return
             else:
                 self.updateLabels( stateStr.decode('utf-8'), otStr.decode('utf-8'), 
                     opStr.decode('utf-8'), egtStr.decode('utf-8'), 
-                    rpmStr.decode('utf-8'), thrStr.decode('utf-8') )
+                    rpmStr.decode('utf-8'), thrStr.decode('utf-8'), gndspeed.decode('utf-8') )
         else:
             return
 
@@ -92,7 +98,7 @@ class logging():
     def newLog(self):
         filename = 'logs/' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.csv'
         self.file = open(filename, 'w+')
-        self.file.write('state, ot, op, egt, rpm, thr\n')
+        self.file.write('state, ot, op, egt, rpm, thr, gndspeed\n')
     
     def append(self, s):
         s = s.replace('\r\n', '')

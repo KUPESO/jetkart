@@ -105,6 +105,7 @@ int fuelspeed = 0;
 int startspeed = 0;
 int startswLED_val = 0;
 byte slewrate = 0;
+int groundspeed = 0;  //GPS speed
 
 boolean FADECwhiteLED_val = LOW;
 boolean FADECorangeLED_val = LOW;
@@ -682,6 +683,7 @@ void throttleread()
         }
       lastthrottlereadtime = millis();    //Reset throttleread function counter
     }
+  groundspeed = fuelspeed/3;  //dummy value for steering wheel GPS speed testing
 }
 
 void tachread()
@@ -725,6 +727,7 @@ void telemetry()
       Serial.println(temperatureegt);
       Serial.println(RPM);
       Serial.println(fuelspeed);
+      Serial.println(groundspeed);
       Serial.println("#");
       digitalWrite(FADECwhite_pin, LOW);
       lasttelemetrytime = millis();  
@@ -735,7 +738,7 @@ void steeringwheel()
 {
   if((millis() - laststeeringtime) >= 200)//steeringtime)
   {
-    snprintf(outstr, 50, "%d %03d %02d %04d %05ld %03d %03d \n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed);
+    snprintf(outstr, 50, "%d %03d %02d %04d %05ld %03d %03d %03d \n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed, groundspeed);
     /*Serial1.print(temperatureoil);
     Serial1.print(",");
     Serial1.print(oilpsi);
