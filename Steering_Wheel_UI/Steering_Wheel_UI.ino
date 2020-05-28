@@ -234,7 +234,7 @@ void updateLED( long RPM )
 String instr;
 int bytes_avail = 0;
 
-char input_string[50];
+char input_string[53];
 
 char bottom_string[50];
 
@@ -288,7 +288,7 @@ void setup()   {
   delay(1500);
   RPM = 0;
   updateLED(RPM);
-  pinmode(buttonPin, INPUT);
+  pinMode(buttonPin, INPUT);
   // init done
 }
 
@@ -297,11 +297,11 @@ void loop() {
   display.setTextColor(WHITE,BLACK);
   bytes_avail = Serial.available();
 
-  buttonState = digitalRead(buttonPin);
+  /*buttonState = digitalRead(buttonPin);
   if(buttonState == HIGH)
   {
     write...
-  }
+  }*/
   
   if(bytes_avail > 0) 
   {
@@ -312,7 +312,7 @@ void loop() {
     display.clearDisplay();
     draw_background();
     
-    memcpy(input_string,instr.c_str(),instr.length() < 49? instr.length(): 49);
+    memcpy(input_string,instr.c_str(),instr.length() < 52? instr.length(): 52);
     //display.clearDisplay();
 
     state_str = strtok(input_string, " ");
@@ -400,9 +400,9 @@ void loop() {
     
     //Print gps speed
     display.setCursor(58,17);
-    display.print("8");
-    display.setCursor(65,17);
-    display.print("8");
+    display.print(gndspeed_str);
+    //display.setCursor(65,17);
+    //display.print("8");
 
 
     //debug lines:

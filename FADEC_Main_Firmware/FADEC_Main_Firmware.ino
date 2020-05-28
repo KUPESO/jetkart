@@ -22,6 +22,7 @@
 #include <max6675.h>
 #include <Servo.h>
 
+
 #define estopsig_pin 2
 #define fuelpwmout_pin 6
 #define FADECwhite_pin 7
@@ -733,12 +734,12 @@ void telemetry()
       lasttelemetrytime = millis();  
   }
 }
-char outstr[50];
+char outstr[53];
 void steeringwheel()
 {
   if((millis() - laststeeringtime) >= 200)//steeringtime)
   {
-    snprintf(outstr, 50, "%d %03d %02d %04d %05ld %03d %03d %03d \n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed, groundspeed);
+    snprintf(outstr, 53, "%d %03d %02d %04d %05ld %03d %03d %02d \n", state, temperatureoil, oilpsi, temperatureegt, RPM, throttlesetting, fuelspeed, groundspeed);
     /*Serial1.print(temperatureoil);
     Serial1.print(",");
     Serial1.print(oilpsi);

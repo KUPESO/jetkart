@@ -2,6 +2,7 @@ from tkinter import *
 import serial
 import threading #used to make sure the UI and serial are independent
 import datetime
+import matplotlib.pyplot as plt
 
 class App:
 
@@ -108,7 +109,7 @@ def UI():
     master = Tk() #creates instace of tk window
     ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=0.5)
     app = App(master, ser) #creates instance of the app class that I use for all the GUI components
-    master.geometry('250x250+10+10') #defines the geometry of the tk window
+    master.geometry('700x500+10+10') #defines the geometry of the tk window
 
     #I use this to replace the mainloop() command since that is blocking
     #I need a non-blocking version that I can control so I can monitor the serial inputs
